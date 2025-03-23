@@ -1,1 +1,1 @@
-/Users/joel/Storage/Musik/Intonationsexperimente/WebApp/wasm/target/wasm32-unknown-unknown/release/wasm.wasm: /Users/joel/Storage/Musik/Intonationsexperimente/WebApp/wasm/src/lib.rs
+/Users/joel/Storage/Musik/Intonationsexperimente/intonationsexperimente/wasm/target/wasm32-unknown-unknown/release/wasm.wasm: /Users/joel/Storage/Musik/Intonationsexperimente/intonationsexperimente/wasm/src/lib.rs
