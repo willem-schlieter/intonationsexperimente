@@ -3,8 +3,8 @@
 
     let custom = false;
     let n = 12;
-    let base: number;
-    let baseKey: number;
+    let base: number = 220.0;
+    let baseKey: number = 33;
     let input: string = "";
 
     let ratios: number[] = [];
