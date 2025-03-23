@@ -60,7 +60,7 @@ export class Synth {
      * @param freq Frequenz des Tons. (0 ist Stille)
      */
     play (freq: number, velo: number) {
-        if (freq == 0) return;
+        if (freq == 0) return
         for (const sound of this.sound.sounds) {
             const tone = new Tone(this.ctx, intoHard(sound, freq, velo), freq, velo);
             tone.master.connect(this.master);

@@ -136,7 +136,7 @@ export function ots (baseSound: SingleSound, ...obertoene: (number | SingleSound
  * des OT zur Grundfrequenz angibt (zB 2 = Oktave), die zweite die Lautstärke.
  * @returns `Sound` mit angegebenem Obertonprofil.
  */
-export function otsWithCustomFreqs (baseSound: SingleSound, ...obertoene: ([number, number])[]): Sound {
+export function synthOts (baseSound: SingleSound, ...obertoene: ([number, number])[]): Sound {
     let sounds = [baseSound];
     for (let ot of obertoene) sounds.push(extend(baseSound, {transpose: (baseSound.transpose || 1) * ot[0], volume: ot[1]}));
     return group(...sounds);
@@ -238,13 +238,12 @@ const klavierBase: SingleSound = group({
 // const klavier = ots(klavierBase, 0.5);
 
 // Erster Versuch mit synthetischem Obertonprofil (SOP)
-const sop7: Sound = otsWithCustomFreqs({name: "Septimen-Obertonprofil"}, [1.75, 0.2], [3.5, 0.1], [5.25, 0.1]);
+const sop7: Sound = synthOts({name: "Septimen-Obertonprofil"}, [1.75, 0.2], [3.5, 0.1], [5.25, 0.1]);
 
 export const soundlib: Sound[] = [
-    sop7,
     group(klavierBase),
     group(organBase),
-    bass, horn, organ, banjo, waber
+    bass, horn, organ, banjo, waber, sop7
 ];
 
 intoHard(banjo, 5, 6);
