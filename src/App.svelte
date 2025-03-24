@@ -1,9 +1,10 @@
 <script lang="ts">
     import { Synth } from "./synth";
     import { soundlib } from "./sounds";
-    // import * as int from "./intonations"; // Wird nicht mehr benötigt, weil jetzt aus WASM geladen
+// import * as int from "./intonations"; // Wird nicht mehr benötigt, weil jetzt aus WASM geladen
     import SoundSettings from "./SoundSettings.svelte";
     import Intonation from "./Intonation.svelte";
+    import Keyboard from "./Keyboard.svelte";
 
     // Die Frequenzen des Intonationssystems
     let freqs: number[] = []; // wird initial in Intonation.svelte berechnet (Default: wohltemperiert 12-stufig)
@@ -62,7 +63,10 @@
             console.error("Your browser seems not to support WebMIDI API: ", err);
         }
     }
-    /**Bekommt ein Array mit den MIDI-Daten und reagiert darauf.*/
+    /**
+     * Bekommt ein Array mit den MIDI-Daten und reagiert darauf.
+     * Für manuelle Ansteuerung: [144, key, 40] für Anschlag, [144, key, 0] für Loslassen.
+    */
     function onMidiMsg (data: Uint8Array) {
         if (data[0] === 144) {
             midiTracker = midiTracker ? false : true;
@@ -82,7 +86,6 @@
     }
 
     midiInit();
-
 </script>
 
 <!-- Titel und MIDI-Tracker -->
@@ -99,8 +102,12 @@
 <!-- Tableiste -->
 <input type="radio" name="tab" id="tab1cb" class="tabcb">
 <label for="tab1cb" id="tab1_label" class="tab_label">Intonationssystem</label>
+
 <input type="radio" name="tab" id="tab2cb" class="tabcb" checked>
 <label for="tab2cb" id="tab2_label" class="tab_label">Sound Design</label>
+
+<!-- <input type="radio" name="tab" id="tab3cb" class="tabcb">
+<label for="tab3cb" id="tab3_label" class="tab_label">Keyboard</label> -->
 
 <!-- Tab 1: Intonationssystem -->
 <div id="tab1">
@@ -110,6 +117,17 @@
 <!-- Tab 2: SoundSettings -->
 <div id="tab2">
     <SoundSettings bind:synth/>
+</div>
+
+<!-- Tab 3: Keyboard -->
+<!-- Im Moment ohne Tabbar Feld und immer unter den anderen Tabs, kann man ggf. mal noch schöner machen. -->
+<div id="tab3">
+    <Keyboard
+        octaves={2}
+        middleC={48}
+        on:noteon={ e => { onMidiMsg(new Uint8Array([144, e.detail, 40])) } }
+        on:noteoff={ e => { onMidiMsg(new Uint8Array([144, e.detail, 0])) } }
+    />
 </div>
 
 <svelte:window
@@ -143,7 +161,7 @@
         border-bottom: 1px solid grey;
     }
     #tracker {
-        position: absolute;
+        position: fixed;
         top: 5px;
         right: 5px;
         width: 40px;
