@@ -1,39 +1,20 @@
 <script lang="ts">
     import { Synth } from "./synth";
     import { soundlib } from "./sounds";
-// import * as int from "./intonations"; // Wird nicht mehr benötigt, weil jetzt aus WASM geladen
+    // import * as int from "./intonations"; // Wird nicht mehr benötigt, weil jetzt aus WASM geladen
     import SoundSettings from "./SoundSettings.svelte";
     import Intonation from "./Intonation.svelte";
     import Keyboard from "./Keyboard.svelte";
 
     // Die Frequenzen des Intonationssystems
     let freqs: number[] = []; // wird initial in Intonation.svelte berechnet (Default: wohltemperiert 12-stufig)
+    // Die MIDI-Taste, der freqs[0] zugewiesen wird.
+    let baseKey: number = 60;
     // Der Synthesizer mit dem jeweils eingestellten Sound
     let synth: Synth = new Synth(soundlib[0]);
     
-    // Oktaven-Shifter
-    let octavePitch = 2;
-    
-    const keys = ["a", "w", "s", "e", "d", "r", "f", "t", "g", "z", "h", "u", "j", "i", "k", "o", "l", "p", "ö", "ü", "ä", "+", "#"];
-    // Wird auf den Index des Tastatur-Keys addiert, um die MIDI-Nummer zu bekommen
-    // 33 bedeutet, dass die erste Frequenz im Array der Taste A entspricht
-    const KEYMIDITRANSLATE = 33;
-    /**Leitet Tatsatur-Keydown an MIDI (onMidiMsg) weiter.*/
-    function onKeydown (key: string) {
-        // Keine MIDI-Weiterleitung, wenn gerade ins Textfeld getippt wird.
-        if (document.activeElement?.tagName != "TEXTAREA") {
-            const ix = keys.indexOf(key);
-            if (ix !== -1) onMidiMsg(new Uint8Array([144, ix + KEYMIDITRANSLATE, 40]));
-        }
-    }
-    /**Leitet Tatsatur-Keyup an MIDI (onMidiMsg) weiter.*/
-    function onKeyup (key: string) {
-        // Keine MIDI-Weiterleitung, wenn gerade ins Textfeld getippt wird.
-        if (document.activeElement?.tagName != "TEXTAREA") {
-            const ix = keys.indexOf(key);
-            if (ix !== -1) onMidiMsg(new Uint8Array([144, ix + KEYMIDITRANSLATE, 0]));
-        }
-    }
+    // Oktaven-Shifter – aktuell konstant bei 2, weil der Shifter entfernt.
+    let octavePitch = 0;
 
     let midiTracker: boolean | null = null;
     let latestKey = -1;
@@ -43,7 +24,7 @@
      * @returns Frequenz des Tons. Wenn die MIDI-Nummer mit keinem Ton belegt ist,
      * wird 0 zurückgegeben (die von `synth.play` und `synth.stop` ignoriert wird).
     */
-    const getFreq = (midiKey: number) => (freqs[midiKey - 33] || 0) * (2 ** octavePitch);
+    const getFreq = (midiKey: number) => (freqs[midiKey - baseKey] || 0);
 
     /**Initialisiert MIDI.*/
     function midiInit () {
@@ -63,8 +44,7 @@
             console.error("Your browser seems not to support WebMIDI API: ", err);
         }
     }
-    /**
-     * Bekommt ein Array mit den MIDI-Daten und reagiert darauf.
+    /** Bekommt ein Array mit den MIDI-Daten und reagiert darauf.
      * Für manuelle Ansteuerung: [144, key, 40] für Anschlag, [144, key, 0] für Loslassen.
     */
     function onMidiMsg (data: Uint8Array) {
@@ -86,17 +66,29 @@
     }
 
     midiInit();
+
+    let middleC = 72;
+    let virtualKeyboard = true;
 </script>
 
 <!-- Titel und MIDI-Tracker -->
 <div id="tracker" class:a={midiTracker === true} class:b={midiTracker === false}>{latestKey !== -1 ? latestKey : ""}</div>
-<h1>&nbsp;&nbsp;&nbsp;Synthesizer für Intonationsexperimente</h1>
-<span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Schließe ein MIDI-Keyboard an oder verwende die Tasten a, w, s, e, d, r...</span>
+<h4>&nbsp;&nbsp;&nbsp;Synthesizer für Intonationsexperimente</h4>
 
-<!-- Oktaven-Shifter -->
+<!-- Keyboard – Im Moment ohne Tabbar Feld und immer über den anderen Tabs, kann man ggf. mal noch schöner machen. -->
 <div id="tab3">
-    <span>Oktaven-Shifter: </span>
-    <input type="range" min={-4} max={4} step={1} bind:value={octavePitch}> <span>{octavePitch}</span>
+    Schließe ein MIDI-Keyboard an, verwende die Tasten a, w, s, e usw. oder
+    <label style="text-decoration: underline"><input type="checkbox" bind:checked={virtualKeyboard}> nutze das virtuelle Keyboard.</label><br>
+    Oktaven-Shifter: 
+    <button on:click={_ => middleC -= 12}>&lt;</button>
+    <button on:click={_ => middleC += 12}>&gt;</button>
+    <Keyboard
+        octaves={2}
+        {middleC}
+        hidden={!virtualKeyboard}
+        on:noteon={ e => { onMidiMsg(new Uint8Array([144, e.detail, 40])) } }
+        on:noteoff={ e => { onMidiMsg(new Uint8Array([144, e.detail, 0])) } }
+    />
 </div>
 
 <!-- Tableiste -->
@@ -111,29 +103,13 @@
 
 <!-- Tab 1: Intonationssystem -->
 <div id="tab1">
-    <Intonation bind:freqs/>
+    <Intonation bind:freqs bind:baseKey/><br><br><br>
 </div>
 
 <!-- Tab 2: SoundSettings -->
 <div id="tab2">
-    <SoundSettings bind:synth/>
+    <SoundSettings bind:synth/><br><br><br>
 </div>
-
-<!-- Tab 3: Keyboard -->
-<!-- Im Moment ohne Tabbar Feld und immer unter den anderen Tabs, kann man ggf. mal noch schöner machen. -->
-<div id="tab3">
-    <Keyboard
-        octaves={2}
-        middleC={48}
-        on:noteon={ e => { onMidiMsg(new Uint8Array([144, e.detail, 40])) } }
-        on:noteoff={ e => { onMidiMsg(new Uint8Array([144, e.detail, 0])) } }
-    />
-</div>
-
-<svelte:window
-    on:keydown={e => {if (! e.repeat && ! e.metaKey) onKeydown(e.key)}}
-    on:keyup={e => {if (! e.metaKey) onKeyup(e.key)}}
-></svelte:window>
 
 <style>
     .tab_label {

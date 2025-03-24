@@ -4,7 +4,7 @@
     let custom = false;
     let n = 12;
     let base: number = 220.0;
-    let baseKey: number = 33;
+    export let baseKey: number = 60;
     let input: string = "";
 
     let ratios: number[] = [];
@@ -13,7 +13,7 @@
     export let freqs: number[] = [];
 
     export function updateIntonation() {
-        if (! custom) freqs = [...wohltemp(55.0, n, 64)];
+        if (! custom) freqs = [...wohltemp(base, n, baseKey)];
         else {
             freqs = new Array(baseKey - 33).fill(440.0).concat([...from_relations(base, Float32Array.from(ratios))])
         };
@@ -24,6 +24,12 @@
 
 
 <h4>Wähle eine Stimmung aus:</h4>
+
+Starttaste: <input type="number" bind:value={baseKey}><br>
+Startfrequenz: <input type="number" bind:value={base}><br>
+<small>Die Starttaste wird mit der Startfrequenz belegt,
+    alle Tasten darüber entsprechend des unten gewählten
+    Intonationssystems. Die Tasten unterhalb der Starttaste werden nicht belegt.</small><br>
     
 <label><input type="radio" name="int" bind:group={custom} value={false} checked>
     Wohltemperiert mit <input type="range" min={3} max={24} step={1} bind:value={n}> {n} Tönen
@@ -32,8 +38,6 @@
 <label><input type="radio" name="int" bind:group={custom} value={true}>
     Frei definiert <button on:click={() => alert("Lege eine Starttaste fest, die mit der Startfrequenz belegt wird. Im Textfeld werden die Schwingungsverhältnisse der folgenden Tasten zur Startfrequenz angegeben. Das rechte Textfeld dient für Notizen und wird nicht ausgelesen. Nicht belegte Tasten erzeugen keinen Ton. WICHTIG: Klicke nach der Eingabe 'Stimmung setzen', damit deine Eingabe ausgelesen wird.")}>?</button><br>
     <div id="__">
-        Starttaste: <input disabled={! custom} type="number" bind:value={baseKey}><br>
-        Startfrequenz: <input disabled={! custom} type="number" bind:value={base}><br>
         <div>
             <textarea
             placeholder="Schwingungsverhältnisse zur Startfrequenz eingeben…"

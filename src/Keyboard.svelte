@@ -1,20 +1,22 @@
-<script>
+<script lang="ts">
     import Key from "./Key.svelte";
 
     export let octaves = 2;
     export let middleC = 60;
-    export let keysPressed = [];
+    export let keysPressed: number[] = [];
+    export let hidden = false;
 
-    let keys;
+    let keys: [number, string][];
     $: keys = [...Array(octaves * 12 + 1).keys()].map(
-        (i) => i + (middleC - Math.floor(octaves / 2) * 12)
+        (i) => [i + (middleC - Math.floor(octaves / 2) * 12), shortcuts[i] || ""]
     );
+    let shortcuts = ["a", "w", "s", "e", "d", "r", "f", "t", "g", "z", "h", "u", "j", "i", "k", "o", "l", "p", "ö", "ü", "ä", "+", "#"];
 </script>
 
-<div class="keyboard" id="virtualKeyboard">
-    <div>
-        {#each keys as note}
-            <Key noteNum={note} on:noteon on:noteoff pressed={keysPressed.includes(note)}/>
+<div class="keyboard" class:hidden id="virtualKeyboard">
+    <div class:hidden>
+        {#each keys as keyTuple}
+            <Key noteNum={keyTuple[0]} shortcut={keyTuple[1]} on:noteon on:noteoff pressed={keysPressed.includes(keyTuple[0])}/>
         {/each}
     </div>
 </div>
@@ -24,6 +26,11 @@
         display: flex;
         justify-content: center;
         z-index: 3;
+        transition: 0.5s;
+    }
+    .hidden {
+        height: 0;
+        opacity: 0;
     }
     .keyboard > div {
         display: flex;
