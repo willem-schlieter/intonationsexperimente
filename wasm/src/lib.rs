@@ -26,3 +26,9 @@ pub fn from_relations (base: f32, relations: Vec<f32>) -> Vec<f32> {
     }
     res
 }
+
+#[wasm_bindgen]
+pub fn test_wasm () -> i32 {
+    log("Hello from Rust-WASM!");
+    return 1;
+}

@@ -1,5 +1,12 @@
 <script lang="ts">
-    import { wohltemp, from_relations } from "../wasm/pkg";
+    import { wohltemp, from_relations, test_wasm } from "../wasm/pkg";
+
+    try {
+        if (test_wasm() !== 1) throw new Error("WASM-Modul konnte nicht geladen werden.");
+    } catch (e) {
+        alert("WASM-Modul (zwingend erforderlich für präzise Berechnungen) konnte nicht geladen werden. Bitte überprüfe, ob dein Browser WASM unterstützt und lade die Seite neu.");
+        throw e;
+    }
 
     let custom = false;
     let n = 12;
