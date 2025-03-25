@@ -3,6 +3,7 @@
 
     let custom = false;
     let n = 12;
+    let baseInterval = 2;
     let base: number = 220.0;
     export let baseKey: number = 60;
     let input: string = "";
@@ -20,6 +21,9 @@
     }
     updateIntonation();
 
+    function importInt (inp: string | null) {
+        if (inp) input = inp.split(" // ").join("\n");
+    }
 </script>
 
 
@@ -32,7 +36,10 @@ Startfrequenz: <input type="number" bind:value={base}><br>
     Intonationssystems. Die Tasten unterhalb der Starttaste werden nicht belegt.</small><br>
     
 <label><input type="radio" name="int" bind:group={custom} value={false} checked>
-    Wohltemperiert mit <input type="range" min={3} max={24} step={1} bind:value={n}> {n} Tönen
+    <!-- Wohltemperiert mit <input type="range" min={3} max={24} step={1} bind:value={n}> {n} Tönen <br> -->
+    Gleichstufig mit <input type="number" min={2} max={24} step={1} bind:value={n}> Tönen im Interval
+    <input type="number" bind:value={baseInterval} max={10.0} step={0.1}>
+    <button on:click={() => alert("Stelle ein gleichstufiges Intonationssystem ein, in dem das angegebene Interval in die angegebene Anzahl von Tönen unterteilt wird. zB: 12 und 2 wäre Unterteilung der Oktave in 12 Töne, also unsere gewohnte wohltemperierte Stimmung.")}>?</button>
 </label><br>
 
 <label><input type="radio" name="int" bind:group={custom} value={true}>
@@ -53,7 +60,8 @@ Startfrequenz: <input type="number" bind:value={base}><br>
         </div>
         <br><span>
             {ratios.join("  //  ")}
-        </span>
+        </span><br>
+        <button disabled={! custom} on:click={() => importInt(prompt("Gibt ein Intonationsprofil (Format: x // y // z) ein und klicke Übernehmen."))}>Importieren…</button>
     </div>
 </label>
 

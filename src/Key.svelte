@@ -50,10 +50,10 @@
 
 <svelte:window
     on:keydown={(e) => {
-        if (e.key === shortcut && ! e.metaKey) keyPressed();
+        if (e.key === shortcut && ! e.metaKey && document.activeElement?.tagName !== "TEXTAREA") keyPressed();
     }}
     on:keyup={(e) => {
-        if (e.key === shortcut && ! e.metaKey) keyReleased();
+        if (e.key === shortcut && ! e.metaKey && document.activeElement?.tagName !== "TEXTAREA") keyReleased();
     }}
 ></svelte:window>
 

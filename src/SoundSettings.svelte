@@ -21,6 +21,16 @@
             synth = new Synth(synthOtp({name: "Synth OTP"}, ...otp));
         }
     }
+
+    function importOTP (otp: string | null) {
+        if (otp) {
+            otp.split(" // ").forEach(str => {
+                const [ratio, volume] = str.split(" = ");
+                ratiosInp += `${ratio}\n`;
+                volumesInp += `${volume}\n`;
+            });
+        }
+    }
 </script>
 
 <h4>Wähle einen Sound aus:</h4>
@@ -52,17 +62,19 @@
             ></textarea>
         </div>
         <br><span>
-            Obertonprofil: {ratiosInp.split("\n").map((str, index) => {
+            {ratiosInp.split("\n").map((str, index) => {
                 const volumes = volumesInp.split("\n").map(str => parseFloat(str));
                 const ratio = parseFloat(str);
                 return ratio && volumes[index] ? `${ratio} = ${volumes[index]}` : null;
             }).filter(Boolean).join(" // ")}
-        </span>
+        </span><br>
+        <button disabled={! custom} on:click={() => ratiosInp = volumesInp = ""}>Leeren</button>
+        <button disabled={! custom} on:click={() => importOTP(prompt("Gibt ein Obertonprofil ein (Format: x = y // z = a), und klicke auf übernehmen."))}>Importieren…</button>
     </div>
 </label><br>
 
 <button on:click={updateSound}>Sound-Einstellung so übernehmen</button>
-<button on:click={() => console.log(synth)}>Synth in Konsole inspizieren</button>
+<button on:click={() => console.log(synth.sound)}>Synth in Konsole inspizieren</button>
 
 <svelte:window on:keydown={e => {if (e.metaKey && e.key == "s") {updateSound(); e.preventDefault()}}}></svelte:window>
 
