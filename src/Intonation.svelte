@@ -14,7 +14,7 @@
     export let freqs: number[] = [];
 
     export function updateIntonation() {
-        if (! custom) freqs = [...wohltemp(base, n, baseKey)];
+        if (! custom) freqs = [...wohltemp(base, baseInterval, n, baseKey)];
         else {
             freqs = new Array(baseKey - 33).fill(440.0).concat([...from_relations(base, Float32Array.from(ratios))])
         };

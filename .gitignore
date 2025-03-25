@@ -1,2 +1,4 @@
 Intonation
 .DS_Store
+wasm/target/*
+wasm/target
