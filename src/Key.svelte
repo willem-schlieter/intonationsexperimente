@@ -50,10 +50,14 @@
 
 <svelte:window
     on:keydown={(e) => {
+        // Eigentlich sollte es von den Textareas selbst übernommen werden, welchen Input sie akzeptieren und was sie weiterleiten.
         if (e.key === shortcut && ! e.metaKey && document.activeElement?.tagName !== "TEXTAREA") keyPressed();
+        // if (e.key === shortcut) keyPressed();
     }}
     on:keyup={(e) => {
+        // Eigentlich sollte es von den Textareas selbst übernommen werden, welchen Input sie akzeptieren und was sie weiterleiten.
         if (e.key === shortcut && ! e.metaKey && document.activeElement?.tagName !== "TEXTAREA") keyReleased();
+        // if (e.key === shortcut) keyReleased();
     }}
 ></svelte:window>
 

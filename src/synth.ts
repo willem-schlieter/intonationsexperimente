@@ -82,4 +82,11 @@ export class Synth {
         }
         this.tones = res;
     }
+
+    /**
+     * Stoppt alle Töne (Synth kann danach sicher gelöscht werden).
+     */
+    kill () {
+        for (let t of this.tones) t.stop();
+    }
 }
